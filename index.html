@@ -1,8 +1,151 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title> 網頁正在努力運行中請稍後 >< </title>
-<!--    告訴瀏覽器刷新 等待0秒後 重新定向到login.php-->
-    <meta http-equiv="refresh" content="10;url=login.php">
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <title>The waiting page</title>
+    <meta http-equiv="refresh" content="15;url=index.html">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+        .container {
+            background-color: #F8E1A6;
+            user-select: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden; /* 確保不會超出範圍 */
+        }
+        .cat-img {
+            flex: 1;
+            width: 100%;
+            max-width: 800px;
+            background-position: bottom;
+            background-size: contain;
+            background-repeat: no-repeat;
+            text-align: center;
+            color: white;
+            font-size: 80px;
+            font-weight: 900;
+            -webkit-text-stroke: 3px black;
+        }
+        img.title {
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%; /* 確保圖片是圓形 */
+            pointer-events: auto;
+            draggable: false;
+        }
+        img.dimmed {
+            filter: brightness(50%);
+        }
+    </style>
 </head>
+<body>
+<div class="container">
+    <h1>強迫奇摩拍拍更努力運轉 ><</h1>
+    <p>點擊圖片霸凌拍拍</p>
+
+    <div id="counter" class="cat-img"></div>
+    <div id="ranking"></div>
+    <img id="yahoo-logo" class="title" src="YAHOO.png" alt="YAHOO LOGO">
+    <button onclick="clearRankings()">清空排名</button>
+
+    <script>
+        let count = 0;
+        const counter = document.getElementById('counter');
+        const yahooLogo = document.getElementById('yahoo-logo');
+        const rankingDiv = document.getElementById('ranking');
+
+        let rankings = JSON.parse(localStorage.getItem('rankings')) || [];
+
+        function countUp() {
+            count++;
+        }
+
+        function moveImageRandomly() {
+            const container = document.querySelector('.container');
+            const imgRect = yahooLogo.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const padding = 10; // 確保圖片不會貼到邊界
+            const imgSize = imgRect.width; // 假設是正方形（圓形）
+
+            // 計算 X 和 Y 的隨機範圍，確保整個圓都在範圍內
+            const minX = padding;
+            const maxX = containerRect.width - imgSize - padding;
+            const minY = padding;
+            const maxY = containerRect.height - imgSize - padding;
+
+            const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+            const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+            yahooLogo.style.left = `${randomX}px`;
+            yahooLogo.style.top = `${randomY}px`;
+        }
+
+        function handleClick() {
+            countUp();
+            counter.innerText = count;
+            let audio = new Audio(`pops/pop1.mp3`);
+            audio.play();
+            yahooLogo.classList.add('dimmed');
+            moveImageRandomly();
+            setTimeout(() => yahooLogo.classList.remove('dimmed'), 200);
+        }
+
+        // 讓圖片點擊可用於電腦與手機
+        yahooLogo.addEventListener('click', handleClick);
+        yahooLogo.addEventListener('touchstart', handleClick);
+
+        function displayRanking() {
+            rankings.sort((a, b) => b - a);
+            rankingDiv.innerHTML = '<h2>排名</h2><ol>' + rankings.slice(0, 5).map(r => `<li>${r}</li>`).join('') + '</ol>';
+        }
+
+        function saveRanking() {
+            if (rankings.length < 5) {
+                rankings.push(count);
+            } else {
+                const minRanking = Math.min(...rankings);
+                if (count > minRanking) {
+                    const minIndex = rankings.indexOf(minRanking);
+                    rankings[minIndex] = count;
+                }
+            }
+            localStorage.setItem('rankings', JSON.stringify(rankings));
+        }
+
+        function updateCounter() {
+            counter.innerText = count;
+        }
+
+        function clearRankings() {
+            rankings = [];
+            localStorage.setItem('rankings', JSON.stringify(rankings));
+            displayRanking();
+        }
+
+        // 每15秒儲存一次點擊數，並重置計數
+        setInterval(() => {
+            saveRanking();
+            count = 0;
+            updateCounter();
+            displayRanking();
+        }, 15000);
+
+        // 初始化
+        displayRanking();
+        moveImageRandomly();
+    </script>
+</div>
+</body>
 </html>
