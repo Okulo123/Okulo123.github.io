@@ -43,6 +43,10 @@
             border-radius: 50%; /* 確保圖片是圓形 */
             pointer-events: auto;
             draggable: false;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
         }
         img.dimmed {
             filter: brightness(50%);
@@ -56,7 +60,7 @@
 
     <div id="counter" class="cat-img"></div>
     <div id="ranking"></div>
-    <img id="yahoo-logo" class="title" src="YAHOO.png" alt="YAHOO LOGO">
+    <img id="yahoo-logo" class="title" src="YAHOO.png" alt="YAHOO LOGO" draggable="false">
     <button onclick="clearRankings()">清空排名</button>
 
     <script>
